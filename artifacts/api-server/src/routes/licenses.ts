@@ -231,9 +231,16 @@ router.get("/licenses/stats", async (_req, res): Promise<void> => {
     byProduct,
     recentLicenses,
   });
-  } catch (err) {
+  } catch (err: any) {
     console.error("STATS ERROR:", err);
-    res.status(500).json({ error: String(err) });
+    console.error("CAUSE:", err?.cause);
+    console.error("ORIGINAL:", err?.original);
+    res.status(500).json({ 
+      error: String(err),
+      cause: String(err?.cause),
+      original: String(err?.original),
+      message: err?.message,
+    });
   }
 });
 
