@@ -1,5 +1,5 @@
 {
-  "buildCommand": "pnpm --filter @workspace/api-spec run codegen && pnpm --filter @workspace/license-admin run build && cp -r artifacts/license-admin/dist/public ./public",
+  "buildCommand": "pnpm --filter @workspace/api-spec run codegen && pnpm --filter @workspace/license-admin run build",
   "rewrites": [
     {
       "source": "/api/:path*",
