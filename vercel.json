@@ -1,0 +1,17 @@
+{
+  "buildCommand": "pnpm install && pnpm --filter @workspace/api-spec run codegen && pnpm --filter @workspace/license-admin run build",
+  "outputDirectory": "artifacts/license-admin/dist/public",
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "REMPLACE_PAR_TON_URL_RENDER/api/:path*"
+    },
+    {
+      "source": "/:path*",
+      "destination": "/index.html"
+    }
+  ],
+  "env": {
+    "BASE_PATH": "/"
+  }
+}

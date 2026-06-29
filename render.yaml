@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: dmh-license-api
+    env: node
+    region: frankfurt
+    buildCommand: pnpm install && pnpm --filter @workspace/api-spec run codegen && pnpm --filter @workspace/api-server run build
+    startCommand: node --enable-source-maps artifacts/api-server/dist/index.mjs
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
