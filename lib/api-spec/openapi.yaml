@@ -3,13 +3,18 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: DMH License Manager API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: licenses
+    description: License management
+  - name: stats
+    description: Dashboard statistics
+
 paths:
   /healthz:
     get:
@@ -24,6 +29,196 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /licenses:
+    get:
+      operationId: listLicenses
+      tags: [licenses]
+      summary: List all licenses
+      parameters:
+        - in: query
+          name: product
+          schema:
+            type: string
+        - in: query
+          name: licenseType
+          schema:
+            type: string
+        - in: query
+          name: status
+          schema:
+            type: string
+        - in: query
+          name: search
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of licenses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/License"
+
+    post:
+      operationId: generateLicense
+      tags: [licenses]
+      summary: Generate a new license key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LicenseInput"
+      responses:
+        "201":
+          description: License created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/License"
+        "400":
+          description: Invalid input
+
+  /licenses/validate:
+    post:
+      operationId: validateLicense
+      tags: [licenses]
+      summary: Validate a license key against a machine ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LicenseValidationInput"
+      responses:
+        "200":
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LicenseValidationResult"
+
+  /licenses/stats:
+    get:
+      operationId: getLicenseStats
+      tags: [stats]
+      summary: Get dashboard statistics
+      responses:
+        "200":
+          description: License statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LicenseStats"
+
+  /licenses/{id}:
+    get:
+      operationId: getLicense
+      tags: [licenses]
+      summary: Get a license by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: License details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/License"
+        "404":
+          description: Not found
+
+    patch:
+      operationId: updateLicense
+      tags: [licenses]
+      summary: Update a license (notes, active status)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LicenseUpdate"
+      responses:
+        "200":
+          description: Updated license
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/License"
+        "404":
+          description: Not found
+
+    delete:
+      operationId: deleteLicense
+      tags: [licenses]
+      summary: Delete a license
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
+  /licenses/{id}/revoke:
+    post:
+      operationId: revokeLicense
+      tags: [licenses]
+      summary: Revoke a license (deactivate it)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: License revoked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/License"
+        "404":
+          description: Not found
+
+  /licenses/{id}/renew:
+    post:
+      operationId: renewLicense
+      tags: [licenses]
+      summary: Renew a subscription license (extend by 30 days)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: License renewed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/License"
+        "404":
+          description: Not found
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +229,154 @@ components:
       required:
         - status
 
+    License:
+      type: object
+      required:
+        - id
+        - licenseKey
+        - machineId
+        - product
+        - licenseType
+        - isActive
+        - createdAt
+      properties:
+        id:
+          type: integer
+        licenseKey:
+          type: string
+        machineId:
+          type: string
+        product:
+          type: string
+          description: "recorder | cash_sheeter | inventory | suite"
+        licenseType:
+          type: string
+          description: "trial | subscription | perpetual"
+        isActive:
+          type: boolean
+        expiresAt:
+          type: ["string", "null"]
+          format: date-time
+        clientName:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    LicenseInput:
+      type: object
+      required:
+        - machineId
+        - product
+        - licenseType
+      properties:
+        machineId:
+          type: string
+          minLength: 1
+        product:
+          type: string
+          description: "recorder | cash_sheeter | inventory | suite"
+        licenseType:
+          type: string
+          description: "trial | subscription | perpetual"
+        durationDays:
+          type: ["integer", "null"]
+          description: "Override duration in days (default: 7 for trial, 30 for subscription, null for perpetual)"
+        clientName:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+
+    LicenseUpdate:
+      type: object
+      properties:
+        isActive:
+          type: boolean
+        clientName:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+
+    LicenseValidationInput:
+      type: object
+      required:
+        - licenseKey
+        - machineId
+        - product
+      properties:
+        licenseKey:
+          type: string
+        machineId:
+          type: string
+        product:
+          type: string
+
+    LicenseValidationResult:
+      type: object
+      required:
+        - valid
+        - message
+      properties:
+        valid:
+          type: boolean
+        message:
+          type: string
+        licenseType:
+          type: ["string", "null"]
+        expiresAt:
+          type: ["string", "null"]
+          format: date-time
+        daysRemaining:
+          type: ["integer", "null"]
+
+    LicenseStats:
+      type: object
+      required:
+        - total
+        - active
+        - revoked
+        - expired
+        - trial
+        - subscription
+        - perpetual
+        - byProduct
+        - recentLicenses
+      properties:
+        total:
+          type: integer
+        active:
+          type: integer
+        revoked:
+          type: integer
+        expired:
+          type: integer
+        trial:
+          type: integer
+        subscription:
+          type: integer
+        perpetual:
+          type: integer
+        byProduct:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProductCount"
+        recentLicenses:
+          type: array
+          items:
+            $ref: "#/components/schemas/License"
+
+    ProductCount:
+      type: object
+      required:
+        - product
+        - count
+      properties:
+        product:
+          type: string
+        count:
+          type: integer

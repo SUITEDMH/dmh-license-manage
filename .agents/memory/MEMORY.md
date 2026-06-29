@@ -1,0 +1,1 @@
+- [DMH License System](dmh-license-system.md) — licensing system for the DMH Suite (Python/Windows desktop apps); online validation only, machine-bound keys, French UI.
