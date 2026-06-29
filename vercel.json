@@ -1,5 +1,5 @@
 {
-  "buildCommand": "pnpm install && pnpm --filter @workspace/api-spec run codegen && pnpm --filter @workspace/license-admin run build",
+  "buildCommand": "pnpm --filter @workspace/api-spec run codegen && pnpm --filter @workspace/license-admin run build",
   "outputDirectory": "artifacts/license-admin/dist/public",
   "rewrites": [
     {
