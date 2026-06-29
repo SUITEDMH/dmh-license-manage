@@ -184,6 +184,7 @@ router.post("/licenses/validate", async (req, res): Promise<void> => {
 });
 
 router.get("/licenses/stats", async (_req, res): Promise<void> => {
+  try {
   const allLicenses = await db.select().from(licensesTable);
 
   const now = new Date();
@@ -230,6 +231,10 @@ router.get("/licenses/stats", async (_req, res): Promise<void> => {
     byProduct,
     recentLicenses,
   });
+  } catch (err) {
+    console.error("STATS ERROR:", err);
+    res.status(500).json({ error: String(err) });
+  }
 });
 
 router.get("/licenses/:id", async (req, res): Promise<void> => {
