@@ -4,7 +4,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "REMPLACE_PAR_TON_URL_RENDER/api/:path*"
+      "destination": "https://dmh-license-api.onrender.com/api/:path*"
     },
     {
       "source": "/:path*",
