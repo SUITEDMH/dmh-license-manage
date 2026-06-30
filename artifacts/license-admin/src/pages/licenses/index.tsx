@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useListLicenses, useRevokeLicense, useRenewLicense, useDeleteLicense, getListLicensesQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { Search, MoreHorizontal, ShieldAlert, RefreshCw, Trash2, Eye, PlusCircle } from "lucide-react";
+import { Search, MoreHorizontal, ShieldAlert, RefreshCw, Trash2, Eye, PlusCircle, Server } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -30,7 +30,7 @@ export default function LicenseList() {
     ...(statusFilter !== "all" ? { status: statusFilter } : {}),
   };
 
-  const { data: licenses, isLoading } = useListLicenses(queryParams);
+  const { data: licenses, isLoading, isError } = useListLicenses(queryParams);
   const revokeLicense = useRevokeLicense();
   const renewLicense = useRenewLicense();
   const deleteLicense = useDeleteLicense();
@@ -66,6 +66,26 @@ export default function LicenseList() {
       });
     }
   };
+
+  // ── Erreur de chargement ──────────────────────────────────────────────────
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20">
+        <Server className="w-12 h-12 text-destructive mb-4" />
+        <h2 className="text-xl font-bold text-foreground">Erreur de chargement</h2>
+        <p className="text-muted-foreground mt-2 text-center max-w-sm">
+          Impossible de charger les licences. Le serveur est peut-être en train de démarrer.
+        </p>
+        <Button
+          className="mt-6"
+          onClick={() => queryClient.invalidateQueries({ queryKey: getListLicensesQueryKey() })}
+        >
+          <RefreshCw className="mr-2 h-4 w-4" />
+          Réessayer
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -245,3 +265,6 @@ export default function LicenseList() {
     </div>
   );
 }
+git add artifacts/license-admin/src/pages/licenses/index.tsx
+git commit -m "fix: gestion erreur API sur page licences (isError + bouton réessayer)"
+git push
