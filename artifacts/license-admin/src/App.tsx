@@ -37,17 +37,11 @@ function Router() {
   return (
     <Switch>
       <Route path="/login" component={Login} />
-      <Route path="/:rest*">
-        <Layout>
-          <Switch>
-            <Route path="/" component={() => <ProtectedRoute component={Dashboard} />} />
-            <Route path="/licenses" component={() => <ProtectedRoute component={LicenseList} />} />
-            <Route path="/licenses/generate" component={() => <ProtectedRoute component={GenerateLicense} />} />
-            <Route path="/licenses/:id" component={() => <ProtectedRoute component={LicenseDetail} />} />
-            <Route component={NotFound} />
-          </Switch>
-        </Layout>
-      </Route>
+      <Route path="/licenses/generate" component={() => <Layout><ProtectedRoute component={GenerateLicense} /></Layout>} />
+      <Route path="/licenses/:id" component={() => <Layout><ProtectedRoute component={LicenseDetail} /></Layout>} />
+      <Route path="/licenses" component={() => <Layout><ProtectedRoute component={LicenseList} /></Layout>} />
+      <Route path="/" component={() => <Layout><ProtectedRoute component={Dashboard} /></Layout>} />
+      <Route component={NotFound} />
     </Switch>
   );
 }
