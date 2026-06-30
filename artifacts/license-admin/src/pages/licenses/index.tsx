@@ -265,6 +265,3 @@ export default function LicenseList() {
     </div>
   );
 }
-git add artifacts/license-admin/src/pages/licenses/index.tsx
-git commit -m "fix: gestion erreur API sur page licences (isError + bouton réessayer)"
-git push
