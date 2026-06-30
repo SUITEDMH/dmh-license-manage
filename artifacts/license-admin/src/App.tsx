@@ -1,4 +1,4 @@
-import { Switch, Route, Router as WouterRouter, useLocation, Redirect } from "wouter";
+import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,6 +10,11 @@ import LicenseDetail from "@/pages/licenses/detail";
 import NotFound from "@/pages/not-found";
 import Login from "@/pages/login";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
+import { setBaseUrl } from "@workspace/api-client-react";
+
+setBaseUrl(
+  import.meta.env.VITE_API_BASE_URL ?? "https://dmh-license-api.onrender.com"
+);
 
 const queryClient = new QueryClient({
   defaultOptions: {
