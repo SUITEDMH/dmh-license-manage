@@ -37,7 +37,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/login" component={Login} />
-      <Route path="/">
+      <Route path="/:rest*">
         <Layout>
           <Switch>
             <Route path="/" component={() => <ProtectedRoute component={Dashboard} />} />
